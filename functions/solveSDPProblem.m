@@ -1,4 +1,4 @@
-function [qT, qT_d, qT_dd] = solveQPProblem(robot, tasksTable, q0, q0_d, ...
+function [qT, qT_d, qT_dd, tSolving] = solveQPProblem(robot, tasksTable, q0, q0_d, ...
             rPos, rPos_d, rPos_dd, rOri, rOri_d, rOri_dd, ...
             jointsLBound, jointsUBound, obstacle, simLength, dt)
     qT = [];
@@ -9,6 +9,8 @@ function [qT, qT_d, qT_dd] = solveQPProblem(robot, tasksTable, q0, q0_d, ...
     qC_d = q0_d;
     
     OPTION.print='';
+    
+    tSolving = [];
     
     for i = 1:simLength
         tic
@@ -147,10 +149,7 @@ function [qT, qT_d, qT_dd] = solveQPProblem(robot, tasksTable, q0, q0_d, ...
 
         % Store current joint acceleration
         qT_dd =  [qT_dd, qC_dd];
-        tSolving = toc;
-        
-        if mod(i, 10) == 0
-            display(strcat('Iteration number: ', num2str(i), '; Time: ', num2str(tSolving)));
-        end
+        tSolving = [tSolving, toc];       
+
     end   
 end

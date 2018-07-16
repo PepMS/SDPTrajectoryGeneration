@@ -40,6 +40,7 @@ obs.center = [1.1; 0.1]; % center of the obstacle
 % Animation & Plots
 simAnimation = 1;
 plotsEnabled = 1;
+plotTime     = 1;
 
 %% Config Errors - DO NOT EDIT
 if length(dLinks) ~= nLinks
@@ -176,11 +177,11 @@ q0 = robot.ikunc(T_ini);
 
 disp(strcat(mtTitle, ' Solving Problem...'))
   
-[qT, qT_d, qT_dd] = solveSDPProblem(robot, tasksOrdered, q0', zeros(robot.n, 1) ...
-    , rPos', rPos_d', rPos_dd', ...
-    rOri, rOri_d, rOri_dd, ...
-    jointsLowBound, jointsUppBound,...
-    obs, simLength, dt);
+[qT, qT_d, qT_dd, solTime] = solveSDPProblem(robot, tasksOrdered, q0', zeros(robot.n, 1), ...
+                             rPos', rPos_d', rPos_dd', ...
+                             rOri, rOri_d, rOri_dd, ...
+                             jointsLowBound, jointsUppBound,...
+                             obs, simLength, dt);
 %% Plotting results
 
 % Defining nice colors
@@ -195,8 +196,8 @@ colors = {[0,      0     , 1],
           [0.6350, 0.0780, 0.1840]};
 
 if plotsEnabled
-    taskPlot(tasksOrdered, robot, qT, rPos', rOri, ...
-        jointsLowBound, jointsUppBound, obs, avoidanceJoints, colors);
+    taskPlot(tasksOrdered, solTime, plotTime, robot, qT, rPos', rOri, ...
+             jointsLowBound, jointsUppBound, obs, avoidanceJoints, colors);
 end
 
 if simAnimation
