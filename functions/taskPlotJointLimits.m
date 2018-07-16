@@ -17,6 +17,7 @@ function taskPlotJointLimits(robot, qT, lowBound, uppBound, colors)
         xlim([0 length(qT)]); ylim([y_min, y_max]);
         legend
         title(strcat('Limits for joint ', int2str(i)));
-        xlabel('samples'); ylabel('joint angle [deg]'); 
+        xlabel('samples'); ylabel('joint angle [deg]');
+        grid on
     end
 end

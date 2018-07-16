@@ -17,13 +17,16 @@ function taskPlotPosTracking(robot, qT, refPos, obstacle, avoidanceJoints, color
     plot(trajEE(1,:) , 'Color', colors{1},'linewidth', 1.5, 'DisplayName', 'End-Effector'); hold on
     plot(refPos(1, :), 'LineStyle', ':', 'Color', colors{2},'linewidth', 1.5, 'DisplayName', 'Reference');
     title('X axis tracking'); legend
-    xlabel('samples'); ylabel('x position [m]'); 
+    xlabel('samples'); ylabel('x position [m]');
+    grid on
     
     subplot(2,1,2)
     plot(trajEE(2,:) , 'Color', colors{1},'linewidth', 1.5, 'DisplayName', 'End-Effector'); hold on
     plot(refPos(2, :),'LineStyle', ':', 'Color', colors{2},'linewidth', 1.5, 'DisplayName', 'Reference');
     title('Y axis tracking'); legend
-    xlabel('samples'); ylabel('y position [m]'); 
+    xlabel('samples'); ylabel('y position [m]');
+    grid on
+    
     %% Trajectory XY plot
     figTrajectory = figure;
 

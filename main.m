@@ -103,11 +103,11 @@ tasksExisting = taskAdd(tasksExisting, task);
 
 task.name = 'Obstacle_Avoidance'; % Do not change this name
 task.enabled = 1;
-task.priority = 2;
+task.priority = 1;
 task.A = [];
 task.b = [];
 task.equality = 0;
-task.plot = 0;
+task.plot = 1;
 task.robot = robot;
 % Avoidance Joints
 %  = 1 -> EndEffector

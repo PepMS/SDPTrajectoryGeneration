@@ -9,4 +9,5 @@ function taskPlotOriTracking(qT, refOri, colors)
     title('Orientation tracking'); legend;
     xlabel('samples'); ylabel('Orientation [deg]');
     ylim([0 95])
+    grid on
 end
