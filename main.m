@@ -25,7 +25,7 @@ rPos_Ini = [1, 0.8]; % End-effector initial position
 rPos_End = [1, -0.5]; % End-effector final positio
 
 % Orientation Angle Reference
-rOriAngle = 90;
+rOriAngle = 85;
 d2r = pi/180; r2d = d2r^-1;
 
 vMax = 0.05; % End-effector max. velocity
@@ -36,6 +36,9 @@ dt = 0.1; % Time step for trajecory generation
 obs = Obstacle;
 obs.radius = 0.30; % radius of the obstacle modeled as a cylinder
 obs.center = [1.1; 0.1]; % center of the obstacle
+
+% Problem features
+activeSet = 1;
 
 % Animation & Plots
 simAnimation = 1;
@@ -181,8 +184,9 @@ disp(strcat(mtTitle, ' Solving Problem...'))
                              rPos', rPos_d', rPos_dd', ...
                              rOri, rOri_d, rOri_dd, ...
                              jointsLowBound, jointsUppBound,...
-                             obs, simLength, dt);
+                             obs, simLength, dt, activeSet);
 %% Plotting results
+disp(strcat(mtTitle, ' Plotting Results...'))
 
 % Defining nice colors
 colors = {[0,      0     , 1], 

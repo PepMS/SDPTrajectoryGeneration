@@ -1,6 +1,7 @@
 function taskPlot(tasksTable, solTime, plotTime, robot, qT, refPos, refOri, ...
                   lowBound, uppBound, obstacle, avoidanceJoints, colors)
-    
+    OAPlotted = 0;
+              
     for i = 1:length(tasksTable)
         task = tasksTable(i);
         if strcmp(task.name, 'Position_Tracking') && task.plot
@@ -9,8 +10,9 @@ function taskPlot(tasksTable, solTime, plotTime, robot, qT, refPos, refOri, ...
             taskPlotOriTracking(qT, refOri, colors);
         elseif strcmp(task.name, 'Joint_Limits') && task.plot
             taskPlotJointLimits(robot, qT, lowBound, uppBound, colors);
-        elseif strcmp(task.name, 'Obstacle_Avoidance') && task.plot
+        elseif strcmp(task.name, 'Obstacle_Avoidance') && task.plot & ~OAPlotted
             taskPlotObsAvoidance(robot, qT, refPos, obstacle, avoidanceJoints, colors);
+            OAPlotted = 1;
         end
     end
     

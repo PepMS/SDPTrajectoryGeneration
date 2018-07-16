@@ -1,12 +1,13 @@
-function [qT, qT_d, qT_dd, tSolving] = solveQPProblem(robot, tasksTable, q0, q0_d, ...
+function [qT, qT_d, qT_dd, tSolving] = solveSDPProblem(robot, tasksTable, q0, q0_d, ...
             rPos, rPos_d, rPos_dd, rOri, rOri_d, rOri_dd, ...
-            jointsLBound, jointsUBound, obstacle, simLength, dt)
+            jointsLBound, jointsUBound, obstacle, simLength, dt, activeSet)
     qT = [];
     qT_d = [];
     qT_dd = [];
     
     qC = q0;
     qC_d = q0_d;
+    qC_dd = zeros(robot.n, 1);
     
     OPTION.print='';
     
@@ -31,84 +32,80 @@ function [qT, qT_d, qT_dd, tSolving] = solveQPProblem(robot, tasksTable, q0, q0_
         C_c = []; % Matrix for inequality constraints
         d_c = []; % Vector for inequality constraints
         
+        C_disc = [];
+        d_disc = [];
+        
         while currPriority <= maxPriority
             
-            tasksPriority = taskGetSamePriority(currPriority, tasksTable);
-            ineqDim = taskGetInequalityDimension(tasksPriority);
-            eqDim = taskGetEqualityDimension(tasksPriority);
+            [A, b, C, d, C_daux, d_daux, eqDim, ineqDim] = SDPLoadTasksInMatrices(currPriority, tasksTable, activeSet, qC_dd);
+            C_disc = [C_disc, C_daux];
+            d_disc = [d_disc, d_daux];
             
-            A = []; % A matrices of the Ob. Fun.
-            b = []; % b vectors of the Ob. Fun.
-            C = [];
-            d = [];
-            
-            for ii = 1:length(tasksPriority)
-                task = tasksPriority(ii);
-                if task.equality == 1
-                    A = [A; task.A];
-                    b = [b; task.b];
-                elseif task.equality == 0
-                    C = [C; task.A];
-                    d = [d; task.b];
-                end                
-            end
-                   
-            nVars = robot.n + ineqDim + 1; % Number of primal variables [q1, ..., qn, slack, gamma]
-            nBlocks = 1 + 1*(ineqDim~=0) + ~isempty(A_c)*2 + ~isempty(C_c)*1; % Number of Blocks in F
-            
-            bStruct = [eqDim + ineqDim + 1];
-            if (ineqDim~=0)
-                bStruct = [bStruct; -ineqDim] ;
-            end
-            if ~isempty(A_c)
-                bStruct = [bStruct; -(size(A_c,1)); -(size(A_c,1))];
-            end
-            if ~isempty(C_c)
-                bStruct = [bStruct; -(size(C_c,1))];
-            end
-            
-            % Create F matrices
-            if isempty(A)
-                A_comp = [zeros(ineqDim, robot.n),eye(ineqDim)];
+            if isempty(A) && isempty(C)
+                % If, for the current priority, all are inequality tasks.
+                % Besides all are inactive.
             else
-                A_comp = blkdiag(A,eye(ineqDim));
-            end
-            b_comp = [b; zeros(ineqDim,1)];
-            g_comp = -2*b_comp'*A_comp;
-            
-            % Filling matrices related with objective function
-            F_matrices = SDPFillOF(A_comp, g_comp, C, d, nVars, robot.n, ineqDim~=0);
-            
-            % Filling constraints from higher hierarchy tasks
-            F_matrices = SDPFillConst(A_c, b_c, C_c, d_c, nVars, robot.n, ineqDim, F_matrices);
+                nVars = robot.n + ineqDim + 1; % Number of primal variables [q1, ..., qn, slack, gamma]
+                nBlocks = 1 + 1*(ineqDim~=0) + ~isempty(A_c)*2 + ~isempty(C_c)*1; % Number of Blocks in F
 
-            % Solve the problem with SDPA-M
-            c_vec = [zeros(nVars-1, 1); 1];
-            [objVal, xOpt, X, Y, INFO] = sdpam(nVars, nBlocks, bStruct, c_vec, F_matrices,[],[],[],OPTION);
-            
-            qC_dd = xOpt(1:robot.n);
-            w_opt = [];
-            if length(xOpt) > robot.n
-                w_opt = xOpt(robot.n + 1:end);
+                bStruct = [eqDim + ineqDim + 1];
+                if (ineqDim~=0)
+                    bStruct = [bStruct; -ineqDim] ;
+                end
+                if ~isempty(A_c)
+                    bStruct = [bStruct; -(size(A_c,1)); -(size(A_c,1))];
+                end
+                if ~isempty(C_c)
+                    bStruct = [bStruct; -(size(C_c,1))];
+                end
+
+                % Create F matrices
+                if isempty(A)
+                    A_comp = [zeros(ineqDim, robot.n),eye(ineqDim)];
+                else
+                    A_comp = blkdiag(A,eye(ineqDim));
+                end
+                b_comp = [b; zeros(ineqDim,1)];
+                g_comp = -2*b_comp'*A_comp;
+
+                % Filling matrices related with objective function
+                F_matrices = SDPFillOF(A_comp, g_comp, C, d, nVars, robot.n, ineqDim~=0);
+
+                % Filling constraints from higher hierarchy tasks
+                F_matrices = SDPFillConst(A_c, b_c, C_c, d_c, nVars, robot.n, ineqDim, F_matrices);
+
+                % Solve the problem with SDPA-M
+                c_vec = [zeros(nVars-1, 1); 1];
+                [objVal, xOpt, X, Y, INFO] = sdpam(nVars, nBlocks, bStruct, c_vec, F_matrices,[],[],[],OPTION);
+                qC_dd = xOpt(1:robot.n);
+                w_opt = [];
+                if length(xOpt) > robot.n
+                    w_opt = xOpt(robot.n + 1:end);
+                end
+
+                % Check whether the inactive inequalities are violated
+                ineqViol = C_disc*qC_dd - d_disc;
+                
+                % Refreshing the constraints
+                if ~ isempty(A)
+                    A_c = [A_c; A];
+                    b_c = [b_c; A*qC_dd];
+                end
+
+                if ~ isempty(C)
+                    for ii = 1:length(C(:, 1))
+                        if C(ii, :)*qC_dd <= d(ii, :)
+                            C_c = [C_c; C(ii, :)];
+                            d_c = [d_c; d(ii)];
+                        else
+                            A_c = [A_c; C(ii, :)];
+                            b_c = [b_c; C(ii, :)*qC_dd];
+                        end
+                    end            
+                end
             end
             
-            % Refreshing the constraints
-            if ~ isempty(A)
-                A_c = [A_c; A];
-                b_c = [b_c; A*qC_dd];
-            end
             
-            if ~ isempty(C)
-                for ii = 1:length(C(:, 1))
-                    if C(ii, :)*qC_dd <= d(ii, :)
-                        C_c = [C_c; C(ii, :)];
-                        d_c = [d_c; d(ii)];
-                    else
-                        A_c = [A_c; C(ii, :)];
-                        b_c = [b_c; C(ii, :)*qC_dd];
-                    end
-                end            
-            end
             currPriority = currPriority + 1;
         end
         
