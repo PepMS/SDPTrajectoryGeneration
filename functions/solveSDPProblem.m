@@ -45,47 +45,60 @@ function [qT, qT_d, qT_dd, tSolving] = solveSDPProblem(robot, tasksTable, q0, q0
                 % If, for the current priority, all are inequality tasks.
                 % Besides all are inactive.
             else
-                nVars = robot.n + ineqDim + 1; % Number of primal variables [q1, ..., qn, slack, gamma]
-                nBlocks = 1 + 1*(ineqDim~=0) + ~isempty(A_c)*2 + ~isempty(C_c)*1; % Number of Blocks in F
+                ineqViolMask = 1; % Init variable for the first optim.
+                while sum(ineqViolMask) > 0
+                    nVars = robot.n + ineqDim + 1; % Number of primal variables [q1, ..., qn, slack, gamma]
+                    nBlocks = 1 + 1*(ineqDim~=0) + ~isempty(A_c)*2 + ~isempty(C_c)*1; % Number of Blocks in F
 
-                bStruct = [eqDim + ineqDim + 1];
-                if (ineqDim~=0)
-                    bStruct = [bStruct; -ineqDim] ;
+                    bStruct = [eqDim + ineqDim + 1];
+                    if (ineqDim~=0)
+                        bStruct = [bStruct; -ineqDim] ;
+                    end
+                    if ~isempty(A_c)
+                        bStruct = [bStruct; -(size(A_c,1)); -(size(A_c,1))];
+                    end
+                    if ~isempty(C_c)
+                        bStruct = [bStruct; -(size(C_c,1))];
+                    end
+
+                    % Create F matrices
+                    if isempty(A)
+                        A_comp = [zeros(ineqDim, robot.n),eye(ineqDim)];
+                    else
+                        A_comp = blkdiag(A,eye(ineqDim));
+                    end
+                    b_comp = [b; zeros(ineqDim,1)];
+                    g_comp = -2*b_comp'*A_comp;
+
+                    % Filling matrices related with objective function
+                    F_matrices = SDPFillOF(A_comp, g_comp, C, d, nVars, robot.n, ineqDim~=0);
+
+                    % Filling constraints from higher hierarchy tasks
+                    F_matrices = SDPFillConst(A_c, b_c, C_c, d_c, nVars, robot.n, ineqDim, F_matrices);
+
+                    % Solve the problem with SDPA-M
+                    c_vec = [zeros(nVars-1, 1); 1];
+                    [objVal, xOpt, X, Y, INFO] = sdpam(nVars, nBlocks, bStruct, c_vec, F_matrices,[],[],[],OPTION);
+                    qC_dd = xOpt(1:robot.n);
+                    w_opt = [];
+                    if length(xOpt) > robot.n
+                        w_opt = xOpt(robot.n + 1:end);
+                    end
+                    
+                    if activeSet
+                        % Check whether the inactive inequalities are violated
+                        ineqViolMask =  C_disc*qC_dd - d_disc > 0;
+                        % Activate violated constraints
+                        C = [C; C_disc(ineqViolMask==1, :)];
+                        d = [d; d_disc(ineqViolMask==1)];
+                        C_disc(ineqViolMask==1, :) = [];
+                        d_disc(ineqViolMask==1) = [];
+                        ineqDim = length(d);
+                        eqDim = length(b);
+                    else
+                        ineqViolMask = 0;
+                    end
                 end
-                if ~isempty(A_c)
-                    bStruct = [bStruct; -(size(A_c,1)); -(size(A_c,1))];
-                end
-                if ~isempty(C_c)
-                    bStruct = [bStruct; -(size(C_c,1))];
-                end
-
-                % Create F matrices
-                if isempty(A)
-                    A_comp = [zeros(ineqDim, robot.n),eye(ineqDim)];
-                else
-                    A_comp = blkdiag(A,eye(ineqDim));
-                end
-                b_comp = [b; zeros(ineqDim,1)];
-                g_comp = -2*b_comp'*A_comp;
-
-                % Filling matrices related with objective function
-                F_matrices = SDPFillOF(A_comp, g_comp, C, d, nVars, robot.n, ineqDim~=0);
-
-                % Filling constraints from higher hierarchy tasks
-                F_matrices = SDPFillConst(A_c, b_c, C_c, d_c, nVars, robot.n, ineqDim, F_matrices);
-
-                % Solve the problem with SDPA-M
-                c_vec = [zeros(nVars-1, 1); 1];
-                [objVal, xOpt, X, Y, INFO] = sdpam(nVars, nBlocks, bStruct, c_vec, F_matrices,[],[],[],OPTION);
-                qC_dd = xOpt(1:robot.n);
-                w_opt = [];
-                if length(xOpt) > robot.n
-                    w_opt = xOpt(robot.n + 1:end);
-                end
-
-                % Check whether the inactive inequalities are violated
-                ineqViol = C_disc*qC_dd - d_disc;
-                
                 % Refreshing the constraints
                 if ~ isempty(A)
                     A_c = [A_c; A];

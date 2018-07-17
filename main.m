@@ -38,7 +38,7 @@ obs.radius = 0.30; % radius of the obstacle modeled as a cylinder
 obs.center = [1.1; 0.1]; % center of the obstacle
 
 % Problem features
-activeSet = 1;
+activeSet = 0;
 
 % Animation & Plots
 simAnimation = 1;
