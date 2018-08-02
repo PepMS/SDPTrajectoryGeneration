@@ -18,7 +18,7 @@ function tasksFilled = taskFillMatrices(tasksTable, robot, qC, qC_d, ...
             pos = Tpos.t(1:2);
             % pos = Tpos(1:2, 4);
             pos_d = J*qC_d;
-            G11 = [6; 11]; G21 = [9; 30.25];
+            G11 = [8; 11]; G21 = [3; 30.25];
             %G11 = [1; 10]; G21 = [1; 10];
             
             task.A = J;

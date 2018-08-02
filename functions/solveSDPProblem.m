@@ -35,6 +35,7 @@ function [qT, qT_d, qT_dd, tSolving] = solveSDPProblem(robot, tasksTable, q0, q0
         C_disc = [];
         d_disc = [];
         
+        iteration = 0;
         while currPriority <= maxPriority
             
             [A, b, C, d, C_daux, d_daux, eqDim, ineqDim] = SDPLoadTasksInMatrices(currPriority, tasksTable, activeSet, qC_dd);
@@ -78,12 +79,23 @@ function [qT, qT_d, qT_dd, tSolving] = solveSDPProblem(robot, tasksTable, q0, q0
 
                     % Solve the problem with SDPA-M
                     c_vec = [zeros(nVars-1, 1); 1];
-                    [objVal, xOpt, X, Y, INFO] = sdpam(nVars, nBlocks, bStruct, c_vec, F_matrices,[],[],[],OPTION);
+                    if iteration == 0
+                        x0 = [];
+                        X0 = [];
+                        Y0 = [];
+                    else
+                        x0 = [qC_dd; zeros(ineqDim, 1)];
+                        x0 = [];
+                        X0 = [];
+                        Y0 = [];
+                    end
+                    [objVal, xOpt, X, Y, INFO] = sdpam(nVars, nBlocks, bStruct, c_vec, F_matrices,x0,X0,Y0,OPTION);
                     qC_dd = xOpt(1:robot.n);
                     w_opt = [];
                     if length(xOpt) > robot.n
                         w_opt = xOpt(robot.n + 1:end);
                     end
+                    
                     
                     if activeSet
                         % Check whether the inactive inequalities are violated
@@ -120,6 +132,7 @@ function [qT, qT_d, qT_dd, tSolving] = solveSDPProblem(robot, tasksTable, q0, q0
             
             
             currPriority = currPriority + 1;
+            iteration = iteration + 1;
         end
         
         % After finishing the task opt. do a last minimization optimization
