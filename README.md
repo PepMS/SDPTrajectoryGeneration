@@ -7,24 +7,20 @@ Some tasks are already implemented in a 4-link planar manipulator: Pose tracking
 
 A nice exercise to do is to play with the task priorities to check their effect on the trajectory resolution.
 
-### Software dependencies
+## Software dependencies
 
-    - Create main folder: `mkdir sdpa`
+### SDPA
+You can do this procedure inside a folder of your choice. In order to ease the procedure, we start from the ${HOME} folder.
 
-
-    * **OpenBLAS**
-   
-        - Download: `git clone https://github.com/xianyi/OpenBLAS.git && cd OpenBLAS`
-
-        - Before compiling OpenBLAS, disable the multithread options in Makefile.rule (inside of OpenBLAS folder): Uncomment `USE_THREAD = 0`  
-
-        - Compile and install depending on your system architecture:
-   
-            * x32: `mkdir build && cd build && cmake .. && make BINARY=32 CC=gcc FC=gfortran USE_OPENMP=0 NO_CBLAS=1 NO_WARMUP=1 libs netlib`    
-            * x64: `mkdir build && cd build && cmake .. && make BINARY=64 CC=gcc FC=gfortran USE_OPENMP=0 NO_CBLAS=1 NO_WARMUP=1 libs netlib`
+- Create main folder: `cd ${HOME} && mkdir sdpa`
+* **OpenBLAS**  
+    - Download: `git clone https://github.com/xianyi/OpenBLAS.git && cd OpenBLAS`
+    - Before compiling OpenBLAS, disable the multithread options in Makefile.rule (inside of OpenBLAS folder): Uncomment `USE_THREAD = 0`  
+    - Compile and install depending on your system architecture:
+        * x32: `make BINARY=32 CC=gcc FC=gfortran USE_OPENMP=0 NO_CBLAS=1 NO_WARMUP=1 libs netlib`    
+        * x64: `make BINARY=64 CC=gcc FC=gfortran USE_OPENMP=0 NO_CBLAS=1 NO_WARMUP=1 libs netlib`
     
-    
-    * **SDPA**
+* **SDPA**
   
         - Download: `cd sdpa && wget https://sourceforge.net/projects/sdpa/files/sdpa/sdpa_7.3.8.tar.gz --no-check-certificate && tar -xvzf sdpa_7.3.8.tar.gz && rm sdpa_7.3.8.tar.gz`
   
