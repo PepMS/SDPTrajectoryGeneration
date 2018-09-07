@@ -16,13 +16,16 @@ addpath(genpath('/home/pepms/sdpa/share/sdpa/mex'));
 nLinks = 4; % Links of the planar robot
 dLinks = [0.5, 0.433, 0.35, 0.22]; % Lengths of the robot's links
 
+nLinks = 5; % Links of the planar robot
+dLinks = [0.3, 0.433, 0.35, 0.22, 0.2]; % Lengths of the robot's links
+
 % Joints Limits
 jointsUppBound = [1000; 180; 180; 1000]; % Degrees, 1000 for disabled limit
 jointsLowBound = [-1000; 5; 5; -1000]; % Degrees, -1000 for disabled limit
 
 % Position Reference
 rPos_Ini = [1, 0.8]; % End-effector initial position
-rPos_End = [1, -0.5]; % End-effector final positio
+rPos_End = [1, -0.5]; % End-effector final position
 
 % Orientation Angle Reference
 rOriAngle = 85;
@@ -36,9 +39,6 @@ dt = 0.1; % Time step for trajecory generation
 obs = Obstacle;
 obs.radius = 0.30; % radius of the obstacle modeled as a cylinder
 obs.center = [1.1; 0.1]; % center of the obstacle
-
-% Problem features
-activeSet = 0;
 
 % Animation & Plots
 simAnimation = 1;
