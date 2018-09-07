@@ -23,6 +23,9 @@ You can do this procedure inside a folder of your choice. In order to ease the p
 * **SDPA**
     - Download: `cd sdpa && wget https://sourceforge.net/projects/sdpa/files/sdpa/sdpa_7.3.8.tar.gz --no-check-certificate && tar -xvzf sdpa_7.3.8.tar.gz && rm sdpa_7.3.8.tar.gz`
     - Compile: 
+        
         `cd sdpa_7.3.8 && export CC=gcc && export CXX=g++ && export FC=gfortran && export CFLAGS="-funroll-all-loops" && export CXXFLAGS="-funroll-all-loops" && export FFLAGS="-funroll-all-loops"`
+        
         `./configure --prefix=$PWD/../ --with-blas="$PWD/../OpenBLAS/libopenblas.a" --with-lapack="$PWD/../OpenBLAS/libopenblas.a"`
+        
         `make && sudo make install`
