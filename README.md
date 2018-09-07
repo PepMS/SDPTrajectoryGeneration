@@ -21,11 +21,26 @@ You can do this procedure inside a folder of your choice. In order to ease the p
         * x64: `make BINARY=64 CC=gcc FC=gfortran USE_OPENMP=0 NO_CBLAS=1 NO_WARMUP=1 libs netlib`
     
 * **SDPA**
-    - Download: `cd sdpa && wget https://sourceforge.net/projects/sdpa/files/sdpa/sdpa_7.3.8.tar.gz --no-check-certificate && tar -xvzf sdpa_7.3.8.tar.gz && rm sdpa_7.3.8.tar.gz`
-    - Compile: 
+    - Download: 
+        `cd sdpa && wget https://sourceforge.net/projects/sdpa/files/sdpa/sdpa_7.3.8.tar.gz --no-check-certificate && tar -xvzf sdpa_7.3.8.tar.gz && rm sdpa_7.3.8.tar.gz`
+    - Compile:  
         
         `cd sdpa_7.3.8 && export CC=gcc && export CXX=g++ && export FC=gfortran && export CFLAGS="-funroll-all-loops" && export CXXFLAGS="-funroll-all-loops" && export FFLAGS="-funroll-all-loops"`
         
         `./configure --prefix=$PWD/../ --with-blas="$PWD/../OpenBLAS/libopenblas.a" --with-lapack="$PWD/../OpenBLAS/libopenblas.a"`
         
         `make && sudo make install`
+* **SDPA-Matlab**
+    - Navigate to the mex folder: `cd ${HOME}/sdpa/share/spda/mex`
+    - Add the following lines to the "Makefile", just before the definition of the variable `ALL_INCLUDE`:
+        
+        `MUMPS_INCLUDE = -I${HOME}/sdpa/sdpa-7.3.8/mumps/build/include/`
+        
+        `MUMPS_LIBS = ${HOME}/sdpa/sdpa-7.3.8/mumps/build/lib/libdmumps.a ${HOME}/sdpa/sdpa-7.3.8/mumps/build/lib/libmumps_common.a ${HOME}/sdpa/sdpa-7.3.8/mumps/build/lib/libpord.a`
+        
+        `MPISEQ_LIBS = ${HOME}/sdpa/sdpa-7.3.8/mumps/build/libseq/libmpiseq.a`
+        
+    - Add the variable `${MPISEQ_LIBS}` to the variable `ALL_LIBS`, so that:
+    
+        `ALL_LIBS    = ${SDPA_LIB} ${MUMPS_LIBS} ${LAPACK_LIBS} ${BLAS_LIBS} ${PTHREAD_LIBS} ${FCLIBS} ${MPISEQ_LIBS}`
+    - Compile: `make`
