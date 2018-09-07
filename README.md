@@ -44,3 +44,13 @@ You can do this procedure inside a folder of your choice. In order to ease the p
     
         `ALL_LIBS    = ${SDPA_LIB} ${MUMPS_LIBS} ${LAPACK_LIBS} ${BLAS_LIBS} ${PTHREAD_LIBS} ${FCLIBS} ${MPISEQ_LIBS}`
     - Compile: `make`
+
+### Robotics Toolbox - Peter Corke
+
+- Download toolbox from [here](http://petercorke.com/wordpress/?ddownload=574)
+- Inside Matlab, navigate to the folder where the toolbox file has been downloaded and double-click on the file. It will install automatically.
+
+## Installation and use
+
+- Clone the repository in the desired folder: `git clone https://github.com/PepMS/SDPTrajectoryGeneration.git`
+- Inside matlab, navigate to the folder of the repository and run the script "main.m".
