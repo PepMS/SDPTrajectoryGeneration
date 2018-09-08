@@ -21,6 +21,7 @@ You can do this procedure inside a folder of your choice. In order to ease the p
     - Compile and install depending on your system architecture:
         * x32: `make BINARY=32 CC=gcc FC=gfortran USE_OPENMP=0 NO_CBLAS=1 NO_WARMUP=1 libs netlib`    
         * x64: `make BINARY=64 CC=gcc FC=gfortran USE_OPENMP=0 NO_CBLAS=1 NO_WARMUP=1 libs netlib`
+    - Installing gfortran compiler might be necessary: `sudo apt-get install gfortran`
     
 * **SDPA**
     - Download: 
