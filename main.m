@@ -4,12 +4,10 @@ clearvars; clc; close all;
 mtTitle = 'Hierarchical Trajectory Gen.: ';
 
 disp(strcat(mtTitle,'Loading libraries'))
-% run '/home/pepms/qpOASES/interfaces/matlab/make.m'
+
 addpath('objects', 'functions');
 addpath('objects', 'functions');
-addpath(genpath('/home/pepms/YALMIP'));
-addpath(genpath('/home/pepms/SeDuMi_1_3'));
-addpath(genpath('/home/pepms/sdpa/share/sdpa/mex'));
+addpath(genpath('${HOME}/sdpa/share/sdpa/mex'));
 %% Simulation Settings and Parameters - EDIT
 
 % Robot
