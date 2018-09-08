@@ -16,9 +16,6 @@ addpath(genpath('/home/pepms/sdpa/share/sdpa/mex'));
 nLinks = 4; % Links of the planar robot
 dLinks = [0.5, 0.433, 0.35, 0.22]; % Lengths of the robot's links
 
-nLinks = 5; % Links of the planar robot
-dLinks = [0.3, 0.433, 0.35, 0.22, 0.2]; % Lengths of the robot's links
-
 % Joints Limits
 jointsUppBound = [1000; 180; 180; 1000]; % Degrees, 1000 for disabled limit
 jointsLowBound = [-1000; 5; 5; -1000]; % Degrees, -1000 for disabled limit
@@ -28,7 +25,7 @@ rPos_Ini = [1, 0.8]; % End-effector initial position
 rPos_End = [1, -0.5]; % End-effector final position
 
 % Orientation Angle Reference
-rOriAngle = 85;
+rOriAngle = 90;
 d2r = pi/180; r2d = d2r^-1;
 
 vMax = 0.05; % End-effector max. velocity
@@ -184,7 +181,7 @@ disp(strcat(mtTitle, ' Solving Problem...'))
                              rPos', rPos_d', rPos_dd', ...
                              rOri, rOri_d, rOri_dd, ...
                              jointsLowBound, jointsUppBound,...
-                             obs, simLength, dt, activeSet);
+                             obs, simLength, dt);
 %% Plotting results
 disp(strcat(mtTitle, ' Plotting Results...'))
 
@@ -205,9 +202,11 @@ if plotsEnabled
 end
 
 if simAnimation
-    figRobot = figure;
-    scenarioPlot(robot, rPos, obs);
-    figure(figRobot);
+    if ~exist('figRobot' , 'var')
+       figRobot = figure;
+       scenarioPlot(robot, rPos, obs);
+       figure(figRobot);
+    end
     robot.plot(qT', 'fps', 64)
 end
 

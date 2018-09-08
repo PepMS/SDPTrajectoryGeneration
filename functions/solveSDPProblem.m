@@ -1,6 +1,6 @@
 function [qT, qT_d, qT_dd, tSolving] = solveSDPProblem(robot, tasksTable, q0, q0_d, ...
             rPos, rPos_d, rPos_dd, rOri, rOri_d, rOri_dd, ...
-            jointsLBound, jointsUBound, obstacle, simLength, dt, activeSet)
+            jointsLBound, jointsUBound, obstacle, simLength, dt)
     qT = [];
     qT_d = [];
     qT_dd = [];
@@ -12,6 +12,9 @@ function [qT, qT_d, qT_dd, tSolving] = solveSDPProblem(robot, tasksTable, q0, q0
     OPTION.print='';
     
     tSolving = [];
+    
+    %---------To be fixed
+    activeSet = 0;
     
     for i = 1:simLength
         tic
