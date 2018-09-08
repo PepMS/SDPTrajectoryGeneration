@@ -1,7 +1,7 @@
 # SDPTrajectoryGeneration
 This repository is related with the my master thesis titled "Redundancy control through SDP Lexicographic Optimization".
 
-<a href="resources/obstacle.gif" title="Planar Manipulator"></a>
+![](resources/obstacle.gif)
 
 Based on [Peter Corke Robotics Toolbox](http://petercorke.com/wordpress/toolboxes/robotics-toolbox) for Matlab, it contains a framework to generate trajectories for a redundant robot. Each task has its own priority and which will be taken into account when solving the trajectory.
 
