@@ -7,7 +7,7 @@ disp(strcat(mtTitle,'Loading libraries'))
 
 addpath('objects', 'functions');
 addpath('objects', 'functions');
-addpath(genpath('${HOME}/sdpa/share/sdpa/mex'));
+addpath(genpath('~/sdpa/share/sdpa/mex'));
 %% Simulation Settings and Parameters - EDIT
 
 % Robot
@@ -70,7 +70,7 @@ task = Task;
 % <Copy-Paste>------------------
 task.name = 'Position_Tracking'; % Do not change this name
 task.enabled = 1;
-task.priority = 2;
+task.priority = 3;
 task.A = [];
 task.b = [];
 task.equality = 1;
@@ -81,7 +81,7 @@ tasksExisting = taskAdd(tasksExisting, task);
 
 task.name = 'Orientation_Tracking';
 task.enabled = 1;
-task.priority = 3;
+task.priority = 2;
 task.A = [];
 task.b = [];
 task.equality = 1;
