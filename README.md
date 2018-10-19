@@ -1,5 +1,5 @@
 # SDPTrajectoryGeneration
-This repository is related with my master thesis titled "Redundancy control through SDP Lexicographic Optimization".
+This repository is related with my master thesis titled "Redundancy control through Lexicographic SDP".
 
 ![](resources/obstacle.gif)
 
