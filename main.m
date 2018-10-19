@@ -8,6 +8,7 @@ disp(strcat(mtTitle,'Loading libraries'))
 addpath('objects', 'functions');
 addpath('objects', 'functions');
 addpath(genpath('~/sdpa/share/sdpa/mex'));
+addpath(genpath('~/rvctools'));
 %% Simulation Settings and Parameters - EDIT
 
 % Robot
@@ -16,14 +17,15 @@ dLinks = [0.5, 0.433, 0.35, 0.22]; % Lengths of the robot's links
 
 % Joints Limits
 jointsUppBound = [1000; 180; 180; 1000]; % Degrees, 1000 for disabled limit
-jointsLowBound = [-1000; 5; 5; -1000]; % Degrees, -1000 for disabled limit
+jointsLowBound = [-1000; 0.1; 0.1; -1000]; % Degrees, -1000 for disabled limit
 
 % Position Reference
-rPos_Ini = [1, 0.8]; % End-effector initial position
-rPos_End = [1, -0.5]; % End-effector final position
+rPos_Ini = [1.2, 0.8]; % End-effector initial position
+rPos_End = [1.2, -0.5]; % End-effector final position
 
 % Orientation Angle Reference
 rOriAngle = 90;
+%rOriAngle = 270;
 d2r = pi/180; r2d = d2r^-1;
 
 vMax = 0.05; % End-effector max. velocity
@@ -32,12 +34,15 @@ dt = 0.1; % Time step for trajecory generation
 
 % Obstacle
 obs = Obstacle;
-obs.radius = 0.30; % radius of the obstacle modeled as a cylinder
-obs.center = [1.1; 0.1]; % center of the obstacle
+obs.radius = 0.3; % radius of the obstacle modeled as a cylinder
+obs.center = [1.3; 0.1]; % center of the obstacle
+
+% Damping factor to avoid ill-conditiones Jacobians
+dampFactor = 1;
 
 % Animation & Plots
 simAnimation = 1;
-plotsEnabled = 1;
+plotsEnabled = 0;
 plotTime     = 1;
 
 %% Config Errors - DO NOT EDIT
@@ -60,7 +65,7 @@ disp(strcat(mtTitle, ' Robot Created'))
 tasksExisting = [];
 task = Task;
 
-% In case to add another task copy-paste the code between "-" 
+% In case to add another task, copy-paste the code between "-" 
 % and fill in accordingly. Also, remember to include the proper method for 
 % the computation of A and b matrices in the 'Task' object
 
@@ -70,7 +75,7 @@ task = Task;
 % <Copy-Paste>------------------
 task.name = 'Position_Tracking'; % Do not change this name
 task.enabled = 1;
-task.priority = 3;
+task.priority = 2;
 task.A = [];
 task.b = [];
 task.equality = 1;
@@ -81,7 +86,7 @@ tasksExisting = taskAdd(tasksExisting, task);
 
 task.name = 'Orientation_Tracking';
 task.enabled = 1;
-task.priority = 2;
+task.priority = 3;
 task.A = [];
 task.b = [];
 task.equality = 1;
@@ -113,16 +118,6 @@ task.robot = robot;
 %  = ...
 avoidanceJoints = 4;
 tasksExisting = taskAdd(tasksExisting, task, 'avoidanceJoints', avoidanceJoints);
-
-task.name = 'Manipulability';
-task.enabled = 0;
-task.priority = 2;
-task.A = [];
-task.b = [];
-task.equality = 1;
-task.plot = 0;
-task.robot = robot;
-tasksExisting = taskAdd(tasksExisting, task);
 
 %% Task numbering - DO NOT EDIT
 
@@ -170,7 +165,7 @@ tasksOrdered = taskOrder(tasksExisting, taskMaskEnable);
 
 simLength = length(rPos);
 angle0 = rOriAngle*d2r;
-T_ini = transl([rPos_Ini, 0]) * rpy2tr(0, 0, angle0);
+T_ini = transl([rPos_Ini, 0]) * rpy2tr(0, 0, rOriAngle);
 q0 = robot.ikunc(T_ini);
 
 disp(strcat(mtTitle, ' Solving Problem...'))
@@ -179,7 +174,7 @@ disp(strcat(mtTitle, ' Solving Problem...'))
                              rPos', rPos_d', rPos_dd', ...
                              rOri, rOri_d, rOri_dd, ...
                              jointsLowBound, jointsUppBound,...
-                             obs, simLength, dt);
+                             obs, simLength, dt, dampFactor);
 %% Plotting results
 disp(strcat(mtTitle, ' Plotting Results...'))
 

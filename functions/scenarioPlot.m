@@ -5,7 +5,7 @@ function scenarioPlot(robot, ref, obs)
     
     if ~isempty(ref)              
         hold on
-        plot3(ref(:, 1),ref(:, 2),zeros(length(ref),1),'g.', 'linewidth', 3)
+        plot3(ref(:, 1),ref(:, 2),zeros(length(ref),1),'m.', 'linewidth', 3)
     end
     
     if ~isempty(obs)
